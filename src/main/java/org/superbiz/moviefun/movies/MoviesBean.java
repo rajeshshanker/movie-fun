@@ -16,8 +16,13 @@
  */
 package org.superbiz.moviefun.movies;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -29,29 +34,49 @@ import java.util.List;
 @Repository
 public class MoviesBean {
 
-    @PersistenceContext
+    @PersistenceContext(unitName="movies")
     private EntityManager entityManager;
+
+    private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private PlatformTransactionManager moviesPlatformTransactionManager;
 
     public Movie find(Long id) {
         return entityManager.find(Movie.class, id);
     }
 
-    @Transactional
-    public void addMovie(Movie movie) {
-        entityManager.persist(movie);
+
+    public void addMovie(Movie movie)
+    {
+
+        transactionTemplate = new TransactionTemplate(moviesPlatformTransactionManager);
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                entityManager.persist(movie);
+            }
+        });
+
     }
 
-    @Transactional
+
     public void editMovie(Movie movie) {
         entityManager.merge(movie);
     }
 
-    @Transactional
+
     public void deleteMovie(Movie movie) {
-        entityManager.remove(movie);
+        transactionTemplate = new TransactionTemplate(moviesPlatformTransactionManager);
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                entityManager.remove(entityManager.contains(movie) ? movie : entityManager.merge(movie));
+            }
+        });
     }
 
-    @Transactional
+
     public void deleteMovieId(long id) {
         Movie movie = entityManager.find(Movie.class, id);
         deleteMovie(movie);
