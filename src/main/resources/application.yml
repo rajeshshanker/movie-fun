@@ -8,3 +8,7 @@ spring:
   mvc.view:
     prefix: /WEB-INF/
     suffix: .jsp
+  awsS3creds:
+    access_key_id : AKIAI3EUL5OHTJBAR4PA
+    secret_access_key: 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
+    bucket :  dell-emc-student-artifacts-3
