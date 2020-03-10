@@ -96,6 +96,17 @@ public class Album implements Serializable {
         return id != null;
     }
 
+    @Override
+    public String toString() {
+        return "Album{" +
+                "id=" + id +
+                ", artist='" + artist + '\'' +
+                ", title='" + title + '\'' +
+                ", year=" + year +
+                ", rating=" + rating +
+                '}';
+    }
+
     public boolean isEquivalent(Album other) {
         if (year != other.year) return false;
         if (!isEqual(title, other.title)) return false;

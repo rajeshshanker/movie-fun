@@ -25,6 +25,7 @@ public class AlbumsUpdater {
     private final BlobStore blobStore;
     private final AlbumsBean albumsBean;
 
+
     public AlbumsUpdater(BlobStore blobStore, AlbumsBean albumsBean) {
         this.blobStore = blobStore;
         this.albumsBean = albumsBean;
@@ -40,8 +41,9 @@ public class AlbumsUpdater {
     }
 
     public void update() throws IOException {
+        logger.info ("Update method invoked");
         Optional<Blob> maybeBlob = blobStore.get("albums.csv");
-
+        logger.info ("Blob Store  : "+maybeBlob);
         if (!maybeBlob.isPresent()) {
             logger.info("No albums.csv found when running AlbumsUpdater!");
             return;
@@ -57,6 +59,7 @@ public class AlbumsUpdater {
 
 
     private void createNewAlbums(List<Album> albumsToHave, List<Album> albumsWeHave) {
+        logger.info("Creating New Albums");
         Stream<Album> albumsToCreate = albumsToHave
             .stream()
             .filter(album -> albumsWeHave.stream().noneMatch(album::isEquivalent));
@@ -65,6 +68,7 @@ public class AlbumsUpdater {
     }
 
     private void deleteOldAlbums(List<Album> albumsToHave, List<Album> albumsWeHave) {
+        logger.info("Deleting Old Albums");
         Stream<Album> albumsToDelete = albumsWeHave
             .stream()
             .filter(album -> albumsToHave.stream().noneMatch(album::isEquivalent));
@@ -73,6 +77,7 @@ public class AlbumsUpdater {
     }
 
     private void updateExistingAlbums(List<Album> albumsToHave, List<Album> albumsWeHave) {
+        logger.info("Updating Existing Albums");
         Stream<Album> albumsToUpdate = albumsToHave
             .stream()
             .map(album -> addIdToAlbumIfExists(albumsWeHave, album))
